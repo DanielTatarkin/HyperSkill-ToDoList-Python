@@ -4,8 +4,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, Column, Integer, String, Date
 from datetime import datetime
 
-sql = create_engine('sqlite:///todo.db?check_same_thread=False')
 Base = declarative_base()
+DB_NAME = "todo.db"
 
 
 class Table(Base):
@@ -15,24 +15,19 @@ class Table(Base):
     deadline = Column(Date, default=datetime.today())
 
     def __repr__(self):
-        return self.task
+        return f"{self.id}. {self.task}"
 
 
-class SqlSession(sessionmaker):
-    def __init__(self, **kw):
-        super().__init__(**kw, bind=sql)
-        self.session = self()
+class SqlSession:
+    def __init__(self):
+        self.engine = create_engine(f'sqlite:///{DB_NAME}?check_same_thread=False')
+        Base.metadata.create_all(self.engine)
+        self.session = sessionmaker(bind=self.engine)()
 
     def add_task(self, task):
-        # , deadline=datetime.strptime(deadline, '%m-%d-%Y').date()
         new_row = Table(task=task)
         self.session.add(new_row)
         self.session.commit()
 
-    def query(self):
+    def get_tasks(self):
         return self.session.query(Table).all()
-
-
-
-
-Base.metadata.create_all(sql)

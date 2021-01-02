@@ -1,6 +1,9 @@
 from sql_util import SqlSession
 
 SQL = SqlSession()
+PROMPT = "1) Today's tasks\n" \
+         "2) Add task\n" \
+         "0) Exit"
 
 
 def main():
@@ -9,13 +12,13 @@ def main():
 
 
 def list_tasks():
-    rows_li = SQL.query()
+    rows_li = SQL.get_tasks()
     print("\nToday:")
     if len(rows_li) == 0:
         print("Nothing to do!")
     else:
-        for num, task in enumerate(rows_li, start=1):
-            print(f"{num}. {task}")
+        for task in rows_li:
+            print(task)
     print("")
 
 
@@ -26,22 +29,21 @@ def add_task():
     print("The task has been added!\n")
 
 
-def print_prompt():
-    print("1) Today's tasks\n"
-          "2) Add task\n"
-          "0) Exit")
-    choice = int(input("> "))
+def shutdown():
+    print("\nBye!")
+    exit(0)
 
-    if choice == 1:
-        list_tasks()
-    elif choice == 2:
-        add_task()
-    elif choice == 0:
-        print("\nBye!")
-        exit(0)
-    else:
-        print("Incorrect input, try again")
-        print_prompt()
+
+def incorrect_input():
+    print("Incorrect input, try again\n")
+    print_prompt()
+
+
+def print_prompt():
+    print(PROMPT)
+    choice = input("> ")
+    fun_choices = {'1': list_tasks, '2': add_task, '0': shutdown}
+    fun_choices.get(choice, incorrect_input)()
 
 
 if __name__ == '__main__':
