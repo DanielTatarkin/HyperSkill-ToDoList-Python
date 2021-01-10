@@ -36,6 +36,10 @@ class SqlSession:
         self.session.add(new_row)
         self.session.commit()
 
+    def delete_task(self, task):
+        self.session.delete(task)
+        self.session.commit()
+
     def get_all_tasks(self):
         """
         Retrieves all Tasks from SQLite database
@@ -62,3 +66,10 @@ class SqlSession:
         Retrieves all Tasks for specific date
         """
         return self.session.query(Task).filter(Task.deadline == date).order_by(Task.deadline).all()
+
+    def get_missed_tasks(self):
+        """
+        Retrieves all Tasks for specific date
+        """
+        today = datetime.today()
+        return self.session.query(Task).filter(Task.deadline < today.date()).order_by(Task.deadline).all()
